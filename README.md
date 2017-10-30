@@ -3,6 +3,8 @@ Simple interactive 15-puzzle game in Clojure for presentation at [Women Who Code
 
 This project was intended as a demonstration of Clojure programming language in action. It is a learning tool.
 
+As an introduction to Clojure syntax try [this guide](https://clojure.org/guides/learn/syntax).
+
 ## Install IDE
 
 Please install [IntelliJ IDEA](http://www.jetbrains.com/idea/download/index.html) and [Cursive](https://cursive-ide.com/userguide/) plugin for it. Both are available under free license.
