@@ -15,8 +15,6 @@ Use the repository URL:
 
     git@github.com:jlebedeva/wwc-clojure.git
 
-Select **Leiningen** as the option to import the project and accept defaults for all other choices.
-
 ## Code
 
 The project has a single namespace **wwc-clojure.core**. The implementation allows to play the 15-puzzle game in REPL.
