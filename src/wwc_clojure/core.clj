@@ -56,7 +56,9 @@
     (= [1 2 3] [1 2 3])
     "Evaluated, but not returned."
     "Returned by the function!")
-  (my-function))
+  (my-function)
+  `(my-function)
+  `(+ 1 2))
 
 (defn new-board
   "Build a new game board.
@@ -129,11 +131,11 @@
 
 (comment
   :6
+  (.indexOf rules/solved-board rules/empty-space)
   (first rules/adjacent-positions)
   (last rules/adjacent-positions)
   rules/adjacent-positions
   rules/solved-board
-  (.indexOf rules/solved-board rules/empty-space)
   (get rules/adjacent-positions 15)
   (moves rules/solved-board))
 
@@ -161,7 +163,7 @@
   :7
   (partition 4 rules/solved-board)
   (clojure.string/join (list \W \W \C \space \T \o \r \o \n \t \o))
-  (doseq [i ["line-A" "line-B" "line-C" "line-D"]] (println i)))
+  (doseq [i ["A" "B" "C" "D"]] (println i)))
 
 (defn play
   "Given the board and the direction where the tile is moving from into the empty space,
@@ -181,14 +183,14 @@
 
 (comment
   :8
+  (get "Yana" 2)
+  (get [1 2 3 5 8] 4)
+  (get {:first "Yana" :middle nil :last "Lebedeva"} :first)
   (when (or false nil)
     "Never returned.")
   (if (and true (not (nil? "String, not a nil")))
     "Is a true value"
-    "Is a false value")
-  (get "Yana" 2)
-  (get [1 2 3 5 8] 4)
-  (get {:first "Yana" :middle nil :last "Lebedeva"} :first))
+    "Is a false value"))
 
 ;; Functions are "first-class citizens" in Clojure.
 ;; It means they can be arguments to other functions, and can be returned from other function just like anything else.
