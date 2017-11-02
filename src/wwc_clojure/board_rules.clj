@@ -1,4 +1,5 @@
-(ns wwc-clojure.board-rules)
+(ns wwc-clojure.board-rules
+  "A helper namespace for wwc-clojure.core")
 
 ;; (def) form binds a value to a name (called "symbol") in the scope of this namespace.
 (def empty-space "[  * ]")
@@ -25,33 +26,39 @@
             tiles)
       empty-space)))
 
-(def adjacent-spaces
-  "A lookup table of possible moves for each space on the board.
+(defn position-on-board?
+  [index]
+  (<= 0 index 15))
+
+(defn leftmost-position?
+  [index]
+  (zero? (mod index 4)))
+
+(defn rightmost-position?
+  [index]
+  (= 3 (mod index 4)))
+
+(defn position-moves
+  "Function that takes a position index and returns a map of possible moves."
+  [idx]
+  ;; Keys can be anything, but here they are keywords :left, :right, :up and :down.
+  ;; Values are vectors with two values (just like the ones 'move-tiles' would accept).
+  (let [left (- idx 1)
+        right (+ idx 1)
+        up (- idx 4)
+        down (+ idx 4)]
+    (cond-> {}
+            (position-on-board? up) (assoc :up [idx up])
+            (position-on-board? down) (assoc :down [idx down])
+            (and (position-on-board? left)
+                 (not (leftmost-position? idx))) (assoc :left [idx left])
+            (and (position-on-board? right)
+                 (not (rightmost-position? idx))) (assoc :right [idx right]))))
+
+(def adjacent-positions
+  "A vector of maps to look up possible moves for each position on the board.
   It is a vector of 16 maps, one for each position.
   [{:right [0 1], :down [0 4]}
    ...
    {:left [15 14], :up [15 11]}]"
-  (let [spaces             (range 16)
-        ;; (set) takes a vector and returns a hash-set with its distinct items
-        space-on-board?    (set spaces)
-        ;; 'space->moves' is a function that exists temporarily. It takes an index and returns a hash-map with 4 keys.
-        ;; Keys can be anything, but here they are keywords :left, :right, :up and :down.
-        ;; Values are vectors with two values (just like the ones 'move-tiles' would accept).
-        space->moves       (fn [idx] {:left [idx (- idx 1)]
-                                      :right [idx (+ idx 1)]
-                                      :up [idx (- idx 4)]
-                                      :down [idx (+ idx 4)]})
-        unfiltered-moves   (map space->moves spaces)
-        leftmost-space?    (fn [index] (zero? (mod index 4)))
-        move-allowed?      (fn [map-entry]
-                             (let [[direction-keyword [from-space to-space]] map-entry]
-                               (and (space-on-board? to-space)
-                                    (case direction-keyword
-                                      :left (not (leftmost-space? from-space))
-                                      :right (not (leftmost-space? to-space))
-                                      true))))]
-    (mapv (fn [moves-from-space]
-            ;; Hash map can be represented as a vector of pairs, as 'move-allowed?' does.
-            ;; (into) will just convert it back to a map after that.
-            (into {} (filter move-allowed? moves-from-space)))
-          unfiltered-moves)))
+  (mapv position-moves (range 16)))

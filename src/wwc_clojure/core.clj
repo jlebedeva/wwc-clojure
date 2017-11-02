@@ -6,7 +6,7 @@
   REPL allows to inspect the documentation associated with the names, for example:
   (doc wwc-clojure.core)"
   ;;
-  (:require [wwc-clojure.board-rules :as board-rules]))
+  (:require [wwc-clojure.board-rules :as rules]))
 
 ;; The expression (as stated between parentheses) below will be evaluated when this namespace (file) is loaded in REPL.
 ;; The first "word" is the name of the function being called: "println" is  "System.out.println" in Java.
@@ -17,6 +17,13 @@
 ;; The function being invoked is always the name after the opening parenthesis, the way is known as "prefix notation".
 ;; For example a sum would look like: (+ 1 2), and an expression that checks for equality: (= 1 "1").
 (println "To play: call (def play! (wwc-clojure.core/new-game)), then (play! :right) or (play! :up) etc.")
+
+;; Examples that can be easily send to REPL to try will start with (comment)
+(comment
+  :1
+  (println "Hello, WWC Toronto!")
+  (+ 1 2)
+  (= 1 "1"))
 
 ;; (defn) makes new functions. Each function has a number of arguments it will accept, and the 'body', or what it
 ;; does when called. The last expression in the body will be returned back.
@@ -35,7 +42,21 @@
   [board]
   ;; The symbol 'board-rules/solved-board' is defined in the namespace nick-named 'board-rules', but its full name is
   ;; 'wwc-clojure.board-rules'.
-  (= board-rules/solved-board board))
+  (= rules/solved-board board))
+
+(comment
+  :2
+  [1 2 3]
+  (type [1 2 3])
+  (= [1 2 3] [1 2 3]))
+
+(comment
+  :3
+  (defn my-function []
+    (= [1 2 3] [1 2 3])
+    "Evaluated, but not returned."
+    "Returned by the function!")
+  (my-function))
 
 (defn new-board
   "Build a new game board.
@@ -44,7 +65,12 @@
   []
   ;; The value of 'board-rules/solved-board' is not mutated by calling 'shuffle' and giving it as an argument here.
   ;; This is not specific to 'shuffle' only. Data structures in Clojure are immutable in general.
-  (shuffle board-rules/solved-board))
+  (shuffle rules/solved-board))
+
+(comment
+  :4
+  rules/solved-board
+  (shuffle rules/solved-board))
 
 (defn move-tiles
   "Exchange tiles in two positions on the board.
@@ -69,10 +95,20 @@
       first-position second-tile
       second-position first-tile)))
 
+(comment
+  :5
+  (let [x 7]
+    (* x x)
+    x)
+  (assoc {"key" "value"} "another-key" "another-value")
+  (let [my-name-map {:first "Yana"
+                     :middle nil}]
+    (assoc my-name-map :last "Lebedeva")))
+
 (defn moves
   "Get all available moves for this board.
 
-  Function that accepts one argument it refers to as 'board', the same 'board' as in solved?, new-board and move-tiles
+  Function that accepts one argument it refers to as 'board', the same 'board' as in solved?,  new-board and move-tiles
   functions above.
   The return value is a map of moves having 2, 3 or 4 keys and their corresponding values:
   {:right [0 1], :down [0 4]}
@@ -88,8 +124,18 @@
   ;; Clojure-Java interoperability is as easy as this: to call 'indexOf' on an Array here we name the method
   ;; instead of the function we call, and give the object on which to call it as the first argument.
   ;; In Java it is 'board.indexOf(emptySpace), in Clojure (.indexOf board board-rules/empty-space).'.
-  (let [empty-space-index (.indexOf board board-rules/empty-space)]
-    (get board-rules/adjacent-spaces empty-space-index)))
+  (let [empty-space-index (.indexOf board rules/empty-space)]
+    (get rules/adjacent-positions empty-space-index)))
+
+(comment
+  :6
+  (first rules/adjacent-positions)
+  (last rules/adjacent-positions)
+  rules/adjacent-positions
+  rules/solved-board
+  (.indexOf rules/solved-board rules/empty-space)
+  (get rules/adjacent-positions 15)
+  (moves rules/solved-board))
 
 (defn print-board
   "Print the board.
@@ -105,11 +151,17 @@
   ;; macro.
   (let [rows (->> board
                   (partition 4)
-                  (map #(clojure.string/join %)))]
+                  (map clojure.string/join))]
     ;; (doseq) iterates over the 4 rows one by one, discarding return values of (println) calls.
     ;; Its goal is entirely in the side-effects it produces.
     (doseq [row rows]
       (println row))))
+
+(comment
+  :7
+  (partition 4 rules/solved-board)
+  (clojure.string/join (list \W \W \C \space \T \o \r \o \n \t \o))
+  (doseq [i ["line-A" "line-B" "line-C" "line-D"]] (println i)))
 
 (defn play
   "Given the board and the direction where the tile is moving from into the empty space,
@@ -126,6 +178,17 @@
     ;; move is not a nil.
     (when move
       (move-tiles board move))))
+
+(comment
+  :8
+  (when (or false nil)
+    "Never returned.")
+  (if (and true (not (nil? "String, not a nil")))
+    "Is a true value"
+    "Is a false value")
+  (get "Yana" 2)
+  (get [1 2 3 5 8] 4)
+  (get {:first "Yana" :middle nil :last "Lebedeva"} :first))
 
 ;; Functions are "first-class citizens" in Clojure.
 ;; It means they can be arguments to other functions, and can be returned from other function just like anything else.
@@ -171,3 +234,13 @@
               board
               @moves)
       nil)))
+
+(comment
+  :9
+  (range 10)
+  (reduce + 0 (range 10))
+  (let [initial-value 0
+        an-atom (atom initial-value)]
+    (println "Atom is" an-atom "and it's value is" @an-atom)
+    (swap! an-atom inc)
+    (println "Atom contains the new value" @an-atom)))
